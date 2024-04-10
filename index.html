@@ -23,9 +23,9 @@
 
             // Check if the location is within the YZU campus
             if (latitude >= 24.968 && latitude <= 24.972 && longitude >= 121.267 && longitude <= 121.273) {
-                output.innerHTML = "<p>You are inside the YZU campus</p>";
+                output.innerHTML += "<p>You are inside the YZU campus</p>";
             } else {
-                output.innerHTML = "<p>You are outside the YZU campus</p>";
+                output.innerHTML += "<p>You are outside the YZU campus</p>";
                 stopMonitoring();
             }
             
