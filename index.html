@@ -26,6 +26,7 @@
                 output.innerHTML = "<p>You are inside the YZU campus</p>";
             } else {
                 output.innerHTML = "<p>You are outside the YZU campus</p>";
+                stopMonitoring();
             }
             // Display latitude and longitude
             output.innerHTML += "<p>Latitude: " + latitude + "</p>";
@@ -36,9 +37,15 @@
             output.innerHTML = "Unable to retrieve your location";
         }
 
+        var geo_options = {
+            enableHighAccuracy: true,
+            maximumAge: 30000,
+            timeout: 27000,
+        };
+
         function startMonitoring() {
             output.innerHTML = "<p>Monitoring started...</p>";
-            watchId = navigator.geolocation.watchPosition(success, error);
+            watchId = navigator.geolocation.watchPosition(success, error, geo_options);
         }
 
         function stopMonitoring() {
