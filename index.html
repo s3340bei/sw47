@@ -28,9 +28,16 @@
                 output.innerHTML = "<p>You are outside the YZU campus</p>";
                 stopMonitoring();
             }
+            
             // Display latitude and longitude
             output.innerHTML += "<p>Latitude: " + latitude + "</p>";
             output.innerHTML += "<p>Longitude: " + longitude + "</p>";
+            
+            // Store and display all tracked coordinates
+            var coordinates = output.innerHTML;
+            localStorage.setItem("trackedCoordinates", coordinates);
+            output.innerHTML += "<br><p>Tracked Coordinates:</p>";
+            output.innerHTML += localStorage.getItem("trackedCoordinates");
         }
 
         function error() {
@@ -51,6 +58,7 @@
         function stopMonitoring() {
             output.innerHTML = "<p>Monitoring stopped</p>";
             navigator.geolocation.clearWatch(watchId);
+            localStorage.removeItem("trackedCoordinates");
         }
         
         
