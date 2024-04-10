@@ -27,6 +27,9 @@
             } else {
                 output.innerHTML = "<p>You are outside the YZU campus</p>";
             }
+            // Display latitude and longitude
+            output.innerHTML += "<p>Latitude: " + latitude + "</p>";
+            output.innerHTML += "<p>Longitude: " + longitude + "</p>";
         }
 
         function error() {
