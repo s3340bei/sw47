@@ -23,22 +23,45 @@
 
             // Check if the location is within the YZU campus
             if (latitude >= 24.968 && latitude <= 24.972 && longitude >= 121.267 && longitude <= 121.273) {
-                output.innerHTML += "<p>You are inside the YZU campus</p>";
+            output.innerHTML = "<p>You are inside the YZU campus</p>";
             } else {
-                output.innerHTML += "<p>You are outside the YZU campus</p>";
-                stopMonitoring();
+            output.innerHTML = "<p>You are outside the YZU campus</p>";
+            stopMonitoring();
             }
-            
-            // Display latitude and longitude
+
+            // Display latitude, longitude, and timestamp
             output.innerHTML += "<p>Latitude: " + latitude + "</p>";
             output.innerHTML += "<p>Longitude: " + longitude + "</p>";
             output.innerHTML += "<p>Timestamp: " + new Date(position.timestamp) + "</p><br>";
-            
-            // Store and display all tracked coordinates
-            var coordinates = output.innerHTML;
-            localStorage.setItem("trackedCoordinates", coordinates);
-            output.innerHTML += "<br><p>Tracked Coordinates:</p>";
-            output.innerHTML += localStorage.getItem("trackedCoordinates");
+
+            // Save the record
+            var record = {
+                latitude: latitude,
+                longitude: longitude,
+                timestamp: new Date(position.timestamp)
+            };
+            var records = localStorage.getItem("trackedCoordinates");
+            if (records) {
+                records = JSON.parse(records);
+                records.push(record);
+            } else {
+                records = [record];
+            }
+
+            // Save and display all records for today
+            var today = new Date().toLocaleDateString();
+            var todayRecords = records.filter(function(record) {
+                return new Date(record.timestamp).toLocaleDateString() === today;
+            });
+
+            localStorage.setItem("trackedCoordinates", JSON.stringify(records));
+            output.innerHTML += "<p>Today's Records:</p>";
+            todayRecords.forEach(function(record) {
+                output.innerHTML += "<p>Latitude: " + record.latitude + "</p>";
+                output.innerHTML += "<p>Longitude: " + record.longitude + "</p>";
+                output.innerHTML += "<p>Timestamp: " + record.timestamp + "</p><br>";
+            });
+            localStorage.setItem("trackedCoordinates", JSON.stringify(records));
         }
 
         function error() {
@@ -61,8 +84,6 @@
             navigator.geolocation.clearWatch(watchId);
             localStorage.removeItem("trackedCoordinates");
         }
-        
-        
 
         function prompt(window, pref, message, callback) {
             let branch = Components.classes[
