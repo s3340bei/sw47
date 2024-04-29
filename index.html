@@ -33,35 +33,6 @@
             output.innerHTML += "<p>Latitude: " + latitude + "</p>";
             output.innerHTML += "<p>Longitude: " + longitude + "</p>";
             output.innerHTML += "<p>Timestamp: " + new Date(position.timestamp) + "</p><br>";
-
-            // Save the record
-            var record = {
-                latitude: latitude,
-                longitude: longitude,
-                timestamp: new Date(position.timestamp)
-            };
-            var records = localStorage.getItem("trackedCoordinates");
-            if (records) {
-                records = JSON.parse(records);
-                records.push(record);
-            } else {
-                records = [record];
-            }
-
-            // Save and display all records for today
-            var today = new Date().toLocaleDateString();
-            var todayRecords = records.filter(function(record) {
-                return new Date(record.timestamp).toLocaleDateString() === today;
-            });
-
-            localStorage.setItem("trackedCoordinates", JSON.stringify(records));
-            output.innerHTML += "<p>Today's Records:</p>";
-            todayRecords.forEach(function(record) {
-                output.innerHTML += "<p>Latitude: " + record.latitude + "</p>";
-                output.innerHTML += "<p>Longitude: " + record.longitude + "</p>";
-                output.innerHTML += "<p>Timestamp: " + record.timestamp + "</p><br>";
-            });
-            localStorage.setItem("trackedCoordinates", JSON.stringify(records));
         }
 
         function error() {
