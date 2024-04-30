@@ -6,10 +6,13 @@
     <title>locationTrace</title>
 </head>
 <body>
-    <p><button onclick="startMonitoring()">Start Monitoring</button></p>
+    <div id="lat"></div>
+    <div id="long"></div>
     <div id="out"></div>
 
     <script>
+        var lat = document.getElementById("lat");
+        var long = document.getElementById("long");
         var output = document.getElementById("out");
         var watchId;
 
@@ -20,19 +23,11 @@
         function success(position) {
             var latitude = position.coords.latitude;
             var longitude = position.coords.longitude;
-
-            // Check if the location is within the YZU campus
-            if (latitude >= 24.968 && latitude <= 24.972 && longitude >= 121.267 && longitude <= 121.273) {
-            output.innerHTML = "<p>You are inside the YZU campus</p>";
-            } else {
-            output.innerHTML = "<p>You are outside the YZU campus</p>";
-            stopMonitoring();
-            }
-
             // Display latitude, longitude, and timestamp
-            output.innerHTML += "<p>Latitude: " + latitude + "</p>";
-            output.innerHTML += "<p>Longitude: " + longitude + "</p>";
-            output.innerHTML += "<p>Timestamp: " + new Date(position.timestamp) + "</p><br>";
+            lat.innerHTML = "Latitude: " + latitude;
+            long.innerHTML = "Longitude: " + longitude;
+            output.innerHTML = "Timestamp: " + new Date(position.timestamp);
+
         }
 
         function error() {
@@ -49,6 +44,10 @@
             output.innerHTML = "<p>Monitoring started...</p>";
             watchId = navigator.geolocation.watchPosition(success, error, geo_options);
         }
+
+        setInterval(function() {
+            navigator.geolocation.getCurrentPosition(success, error, geo_options);
+        }, 10000);
 
         function stopMonitoring() {
             output.innerHTML = "<p>Monitoring stopped</p>";
@@ -119,12 +118,12 @@
             }
 
             prompt(
-            window,
-            "extensions.foo-addon.allowGeolocation",
-            "Foo Add-on wants to know your location.",
-            function callback(allowed) {
-                alert(allowed);
-            },
+                window,
+                "extensions.foo-addon.allowGeolocation",
+                "Foo Add-on wants to know your location.",
+                function callback(allowed) {
+                    alert(allowed);
+                },
             );
 
     </script>
