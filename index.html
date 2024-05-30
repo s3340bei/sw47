@@ -1,180 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>locationTrace</title>
-</head>
-<body>
-    <p>請不要關閉此視窗直到離開YZU校園</p>
-    <div id="lat"></div>
-    <div id="long"></div>
-    <div id="out"></div>
-    <div>
-        <input id="ver"></input>
-        <button id="submit">Submit</button>
-    </div>
-
+    <title>Select Location</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAYILXIGiVTSNgD6prcDepB7AgezlvJZgk&libraries=places"></script>
     <script>
-        
-    function submitToDatabase() {
-        var latitude = document.getElementById("lat").innerHTML.split(":")[1].trim();
-        var longitude = document.getElementById("long").innerHTML.split(":")[1].trim();
-        var timestamp = document.getElementById("out").innerHTML.split(":")[1].trim();
-        var ver = document.getElementById("ver").value;
-        if (parseInt(ver) < 0 || parseInt(ver) > 10000 || !Number.isInteger(parseInt(ver))) {
-            alert("Please enter a valid integer between 0 and 10000 for 'ver'");
-            return;
-        }
-        // Create JSON object
-        var data = {
-            latitude: latitude,
-            longitude: longitude,
-            timestamp: timestamp,
-            ver: ver
-        };
-        // 使用 fetch API 發送 POST 請求到後端
-        fetch('/post', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
-        .then(response => {
-            if (response.ok) {
-                alert('位置和驗證碼已成功提交');
-            }else if(response.stopM){
-                alert('停止定位');
-                stopMonitoring();
-            }
-             else {
-                alert('提交失敗');
-            }
-        })
-        .catch(error => {
-            console.error('錯誤:', error);
+      function initMap() {
+        // 创建地图实例
+        var map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: -34.397, lng: 150.644},
+          zoom: 6
         });
 
-    }
+        // 尝试HTML5地理位置
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
 
-    document.getElementById("submit").addEventListener("click", submitToDatabase);
-        var output = document.getElementById("out");
-        var watchId;
-        var lat = document.getElementById("lat");
-        var long = document.getElementById("long");        
+            var marker = new google.maps.Marker({
+              position: pos,
+              map: map,
+              title: 'Your Location'
+            });
 
-        if (!navigator.geolocation) {
-            output.innerHTML = "<p>Geolocation is not supported by your browser</p>";
+            map.setCenter(pos);
+          }, function() {
+            handleLocationError(true, map.getCenter());
+          });
+        } else {
+          // 浏览器不支持地理位置
+          handleLocationError(false, map.getCenter());
         }
+      }
 
-        function success(position) {
-            var latitude = position.coords.latitude;
-            var longitude = position.coords.longitude;
-            var timestamp = new Date(position.timestamp).toString().split(' GMT')[0];
-            output.innerHTML = "Timestamp: "+timestamp;
-
-            // Display latitude, longitude, and timestamp
-            lat.innerHTML = "Latitude: " + latitude;
-            long.innerHTML = "Longitude: " + longitude;
-        }
-
-        
-
-        function error() {
-            output.innerHTML = "Unable to retrieve your location";
-        }
-
-        var geo_options = {
-            enableHighAccuracy: true,
-            maximumAge: 30000,
-            timeout: 27000,
-        };
-
-        let bol = false;
-        window.onload = function () {
-            output.innerHTML = "<p>Monitoring started...</p>";
-            watchId = navigator.geolocation.watchPosition(success, error, geo_options);
-            console.log(watchId);
-        }
-
-        function stopMonitoring() {
-            output.innerHTML = "<p>Monitoring stopped</p>";
-            navigator.geolocation.clearWatch(watchId);
-        }
-
-        function prompt(window, pref, message, callback) {
-            let branch = Components.classes[
-                "@mozilla.org/preferences-service;1"
-            ].getService(Components.interfaces.nsIPrefBranch);
-
-            if (branch.getPrefType(pref) === branch.PREF_STRING) {
-                switch (branch.getCharPref(pref)) {
-                case "always":
-                    return callback(true);
-                case "never":
-                    return callback(false);
-                }
-            }
-
-            let done = false;
-
-            function remember(value, result) {
-                return function () {
-                done = true;
-                branch.setCharPref(pref, value);
-                callback(result);
-                };
-            }
-
-            let self = window.PopupNotifications.show(
-                window.gBrowser.selectedBrowser,
-                "geolocation",
-                message,
-                "geo-notification-icon",
-                {
-                label: "Share Location",
-                accessKey: "S",
-                callback: function (notification) {
-                    done = true;
-                    callback(true);
-                },
-                },
-                [
-                {
-                    label: "Always Share",
-                    accessKey: "A",
-                    callback: remember("always", true),
-                },
-                {
-                    label: "Never Share",
-                    accessKey: "N",
-                    callback: remember("never", false),
-                },
-                ],
-                {
-                eventCallback: function (event) {
-                    if (event === "dismissed") {
-                    if (!done) callback(false);
-                    done = true;
-                    window.PopupNotifications.remove(self);
-                    }
-                },
-                persistWhileVisible: true,
-                },
-            );
-            }
-
-            prompt(
-                window,
-                "extensions.foo-addon.allowGeolocation",
-                "Foo Add-on wants to know your location.",
-                function callback(allowed) {
-                    alert(allowed);
-                },
-            );
-
-            
+      function handleLocationError(browserHasGeolocation, pos) {
+        console.log(browserHasGeolocation ?
+                      'Error: The Geolocation service failed.' :
+                      'Error: Your browser doesn\'t support geolocation.');
+      }
+    </script>
+</head>
+<body>
+    <div id="map" style="height: 500px;"></div>
+    <script>
+      initMap();
     </script>
 </body>
 </html>
