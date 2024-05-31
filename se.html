@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Location</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAYILXIGiVTSNgD6prcDepB7AgezlvJZgk&libraries=places&callback=initMap" async defer></script>
+    <script>
+      let map, marker, locationButton;
+
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: -34.397, lng: 150.644},
+          zoom: 8
+        });
+
+        locationButton = document.getElementById('getLocationButton');
+        locationButton.disabled = true;  // Initially disable the button
+
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            const pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+
+            marker = new google.maps.Marker({
+              position: pos,
+              map: map,
+              title: 'Your Location'
+            });
+
+            map.setCenter(pos);
+            locationButton.disabled = false;  // Enable the button when location is available
+          }, function(error) {
+            document.getElementById('info').textContent = 'Error: ' + error.message;
+            locationButton.disabled = true;  // Keep the button disabled if error occurs
+          });
+        } else {
+          document.getElementById('info').textContent = 'Geolocation is not supported by this browser.';
+        }
+      }
+
+      function getLocation() {
+        if (marker) {
+          const pos = marker.getPosition();
+          alert("Latitude: " + pos.lat() + ", Longitude: " + pos.lng());
+        } else {
+          alert("Location not available.");
+        }
+      }
+    </script>
+</head>
+<body>
+    <div id="map" style="height: 500px;"></div>
+    <div id="info" style="padding: 10px; color: red;"></div>
+    <button id="getLocationButton" onclick="getLocation()">Get Location</button>
+</body>
+</html>
