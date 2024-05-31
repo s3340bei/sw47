@@ -2,50 +2,56 @@
 <html>
 <head>
     <title>Select Location</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAYILXIGiVTSNgD6prcDepB7AgezlvJZgk&libraries=places"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAYILXIGiVTSNgD6prcDepB7AgezlvJZgk&libraries=places&callback=initMap" async defer></script>
     <script>
+      let map, marker, locationButton;
+
       function initMap() {
-        // 创建地图实例
-        var map = new google.maps.Map(document.getElementById('map'), {
+        map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: -34.397, lng: 150.644},
-          zoom: 6
+          zoom: 8
         });
 
-        // 尝试HTML5地理位置
+        locationButton = document.getElementById('getLocationButton');
+        locationButton.disabled = true;  // Initially disable the button
+
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function(position) {
-            var pos = {
+            const pos = {
               lat: position.coords.latitude,
               lng: position.coords.longitude
             };
 
-            var marker = new google.maps.Marker({
+            marker = new google.maps.Marker({
               position: pos,
               map: map,
               title: 'Your Location'
             });
 
             map.setCenter(pos);
-          }, function() {
-            handleLocationError(true, map.getCenter());
+            locationButton.disabled = false;  // Enable the button when location is available
+          }, function(error) {
+            document.getElementById('info').textContent = 'Error: ' + error.message;
+            locationButton.disabled = true;  // Keep the button disabled if error occurs
           });
         } else {
-          // 浏览器不支持地理位置
-          handleLocationError(false, map.getCenter());
+          document.getElementById('info').textContent = 'Geolocation is not supported by this browser.';
         }
       }
 
-      function handleLocationError(browserHasGeolocation, pos) {
-        console.log(browserHasGeolocation ?
-                      'Error: The Geolocation service failed.' :
-                      'Error: Your browser doesn\'t support geolocation.');
+      function getLocation() {
+        if (marker) {
+          const pos = marker.getPosition();
+          alert("Latitude: " + pos.lat() + ", Longitude: " + pos.lng());
+        } else {
+          alert("Location not available.");
+        }
       }
     </script>
 </head>
 <body>
     <div id="map" style="height: 500px;"></div>
-    <script>
-      initMap();
-    </script>
+    <div id="info" style="padding: 10px; color: red;"></div>
+    <button id="getLocationButton" onclick="getLocation()">Get Location</button>
 </body>
 </html>
